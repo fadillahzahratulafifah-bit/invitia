@@ -5,43 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <title>Undangan Sidang Promosi Doktor - Dr. Aris Ariyanto, S.E., M.M.</title>
-    <meta name="description" content="Undangan resmi Ujian Sidang Promosi mencapai gelar Doktor Ilmu Manajemen Pascasarjana Universitas Pasundan untuk Dr. Aris Ariyanto, S.E., M.M.">
-    <meta name="author" content="Dr. Aris Ariyanto, S.E., M.M.">
+    <meta name="description" content="Undangan resmi Ujian Sidang Promosi mencapai gelar Doktor untuk Dr. Aris Ariyanto, S.E., M.M.">
+    <meta name="author" content="Dr. Aris Ariyanto">
 
-    <!-- Open Graph / Meta Tags untuk WhatsApp & Media Sosial (Link Preview) -->
-    <meta property="og:title" content="Sidang Promosi Dr. Aris Ariyanto - Undangan Digital">
-    <meta property="og:description" content="Rabu, 1 Juli 2026 | Ujian Sidang Promosi Doktor Ilmu Manajemen Pascasarjana Universitas Pasundan.">
-    <meta property="og:image" content="https://res.cloudinary.com/drs5bj8tq/image/upload/v1782467459/WhatsApp_Image_2026-06-26_at_16.32.19_ow6wsy.jpg">
-    <meta property="og:image:secure_url" content="https://res.cloudinary.com/drs5bj8tq/image/upload/v1782467459/WhatsApp_Image_2026-06-26_at_16.32.19_ow6wsy.jpg">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="400">
-    <meta property="og:image:height" content="400">
-    <meta property="og:type" content="website">
-    
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Sidang Promosi Dr. Aris Ariyanto - Undangan">
-    <meta name="twitter:description" content="Undangan Ujian Sidang Promosi Doktor Ilmu Manajemen Pascasarjana Universitas Pasundan.">
-    <meta name="twitter:image" content="https://res.cloudinary.com/drs5bj8tq/image/upload/v1782467459/WhatsApp_Image_2026-06-26_at_16.32.19_ow6wsy.jpg">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        navy: '#06142E', /* Deep Luxury Blue Background */
-                        royalblue: '#1B3B6F', /* Accent Blue Panel */
-                        gold: '#D4AF37', /* Luxury Gold Accent */
-                        lightgold: '#F9F1D8',
-                        charcoal: '#1A202C',
-                        darkgrey: '#3A3A3A',
+                        navy: '#06142E',
+                        royalblue: '#1B3B6F',
+                        gold: '#D4AF37',
+                        lightgold: '#F4E087',
+                        charcoal: '#2F2F2F',
                         silver: '#C0C0C0',
-                        lightsilver: '#E5E5E5',
                         white: '#FFFFFF',
-                        lightgrey: '#D6D6D6',
-                        bordergrey: '#8A8A8A',
-                        shadow: '#050A15'
                     }
                 }
             }
@@ -54,10 +33,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { initializeFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Konfigurasi dinamis
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        // Memaksa menggunakan konfigurasi Firebase milik Anda
+        const firebaseConfig = {
             apiKey: "AIzaSyA5M9ZHs5ic1oV-W3yoh0oPvh574LkSyx8",
             authDomain: "invitia-c74cb.firebaseapp.com",
             projectId: "invitia-c74cb",
@@ -67,7 +46,7 @@
             measurementId: "G-DGB6VVSBV0"
         };
 
-        const appId = 'aris-ariyanto-promosi'; // Updated App ID for isolated data
+        const appId = 'aris-ariyanto-promosi';
 
         let db = null;
         let auth = null;
@@ -76,6 +55,11 @@
         window.firebaseStore = { appId };
         window.allRSVPData = [];
 
+        // UI & Global State Variables
+        let isPlaying = false;
+        let currentGuestTab = 'total';
+
+        // --- FIREBASE LOGIC ---
         const initFirebase = async () => {
             loadFallbackRSVP();
             try {
@@ -95,7 +79,8 @@
                     }
                 });
             } catch (error) { 
-                console.warn("Koneksi Firebase gagal, beralih ke lokal sementara.");
+                console.error("Koneksi Firebase Error:", error);
+                console.warn("Beralih ke penyimpanan lokal sementara karena error di atas.");
                 isUsingFirebase = false;
             }
         };
@@ -119,7 +104,7 @@
                         <div class="flex justify-between items-start mb-2 border-b border-white/10 pb-2">
                             <div class="flex flex-col">
                                 <span class="font-bold text-[11px] text-white tracking-wide leading-tight">${data.name}</span>
-                                <span class="text-[8px] text-lightsilver">${data.relation || 'Rekan'}</span>
+                                <span class="text-[8px] text-gold">${data.relation || 'Rekan'}</span>
                             </div>
                             <span class="text-[8px] px-2 py-0.5 rounded-full font-bold uppercase shrink-0 ${badgeColor}">${data.status}</span>
                         </div>
@@ -139,7 +124,9 @@
                 container.innerHTML = messagesHTML || '<p class="text-[11px] opacity-40 italic py-6 text-center text-white">Belum ada ucapan doa masuk.</p>';
             }
 
-            if (typeof window.renderGuestTab === 'function') window.renderGuestTab();
+            if (typeof window.renderGuestTab === 'function') {
+                window.renderGuestTab();
+            }
         };
 
         const loadPublicRSVP = () => {
@@ -150,7 +137,8 @@
                 snapshot.forEach(d => docs.push(d.data()));
                 docs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 renderRSVPList(docs);
-            }, () => {
+            }, (error) => {
+                console.error("Gagal membaca data Firestore:", error);
                 isUsingFirebase = false;
                 loadFallbackRSVP();
             });
@@ -161,7 +149,9 @@
                 const localData = JSON.parse(localStorage.getItem(`rsvp_${appId}`)) || [];
                 localData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                 renderRSVPList(localData);
-            } catch (e) { renderRSVPList([]); }
+            } catch (e) {
+                renderRSVPList([]);
+            }
         };
 
         window.submitRSVP = async () => {
@@ -170,7 +160,7 @@
             const msg = document.getElementById('rsvp-message').value.trim();
             const status = document.getElementById('rsvp-status').value;
 
-            if (!name || !status) return alertModal("Mohon lengkapi nama dan konfirmasi status kehadiran Anda.");
+            if (!name || !status) return window.alertModal("Mohon lengkapi nama dan konfirmasi status kehadiran Anda.");
 
             const btn = document.getElementById('btn-send-rsvp');
             btn.disabled = true; btn.innerText = "Mengirim...";
@@ -185,7 +175,10 @@
                     rsvpData.uid = auth.currentUser.uid;
                     await addDoc(colRef, rsvpData);
                     triggerSuccessFlow();
-                } catch (e) { saveLocally(rsvpData); } 
+                } catch (e) { 
+                    console.error("Gagal simpan ke Firebase:", e);
+                    saveLocally(rsvpData); 
+                } 
                 finally { btn.disabled = false; btn.innerText = "Kirim Konfirmasi"; }
             } else {
                 saveLocally(rsvpData);
@@ -198,22 +191,354 @@
                 const localData = JSON.parse(localStorage.getItem(`rsvp_${appId}`)) || [];
                 localData.unshift(data);
                 localStorage.setItem(`rsvp_${appId}`, JSON.stringify(localData));
-                loadFallbackRSVP(); triggerSuccessFlow();
+                loadFallbackRSVP();
+                triggerSuccessFlow();
             } catch (e) {
-                alertModal("Penyimpanan penuh, namun konfirmasi Anda tetap kami hargai!");
+                window.alertModal("Penyimpanan penuh, namun konfirmasi Anda tetap kami hargai!");
                 triggerSuccessFlow();
             }
         };
 
         const triggerSuccessFlow = () => {
-            alertModal("Konfirmasi kehadiran dan ucapan berhasil dikirim. Terima kasih!");
+            window.alertModal("Konfirmasi kehadiran dan ucapan berhasil dikirim. Terima kasih!");
             document.getElementById('rsvp-name').value = '';
             document.getElementById('rsvp-message').value = '';
             document.getElementById('rsvp-status').value = '';
-            setTimeout(() => scrollToSection('sec-closing'), 800);
+
+            setTimeout(() => {
+                window.scrollToSection('sec-closing');
+            }, 800);
         };
 
+
+        // --- UI & ANIMATION LOGIC ---
+
+        window.alertModal = (msg) => {
+            const div = document.createElement('div');
+            div.className = "fixed inset-0 z-[1000] flex items-center justify-center px-6 bg-black/85 backdrop-blur-md transition-all duration-300";
+            div.innerHTML = `
+                <div class="glass-panel p-6 text-center max-w-xs border-gold/40 shadow-2xl bg-[#06142E]/95 animate-fade-in-up">
+                    <p class="text-[12px] mb-5 text-white leading-relaxed font-semibold text-center font-playfair">${msg}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn-pop shadow-md px-6 py-2.5">Tutup</button>
+                </div>
+            `;
+            document.body.appendChild(div);
+        };
+
+        window.toggleMusic = function() {
+            const audio = document.getElementById("bg-music");
+            const musicBtn = document.getElementById("music-btn-container");
+            if (!audio) return;
+            
+            if (isPlaying) {
+                audio.pause();
+                musicBtn.classList.remove("playing");
+            } else {
+                audio.play().catch(() => {});
+                musicBtn.classList.add("playing");
+            }
+            isPlaying = !isPlaying;
+        };
+
+        const showNavigation = () => {
+            const nav = document.getElementById('nav-container');
+            if (nav && nav.classList.contains('pointer-events-none')) {
+                nav.classList.remove('translate-y-28', 'opacity-0', 'pointer-events-none');
+                nav.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+            }
+        };
+
+        const hideNavigation = () => {
+            const nav = document.getElementById('nav-container');
+            if (nav && !nav.classList.contains('pointer-events-none')) {
+                nav.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+                nav.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
+            }
+        };
+
+        window.bukaUndangan = function() {
+            window.scrollToSection('sec-profil');
+            showNavigation(); 
+            
+            setTimeout(() => {
+                const audio = document.getElementById("bg-music");
+                const musicBtn = document.getElementById("music-btn-container");
+                if (audio && !isPlaying) {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        musicBtn.classList.add("playing");
+                    }).catch(() => {});
+                }
+            }, 50);
+        };
+
+        window.scrollToSection = (id) => {
+            const container = document.getElementById('scroll-container');
+            const el = document.getElementById(id);
+            
+            if (container && el) {
+                container.style.scrollSnapType = 'none';
+                el.scrollIntoView({ behavior: 'smooth' });
+                
+                setTimeout(() => {
+                    container.style.scrollSnapType = 'y mandatory';
+                }, 800);
+            }
+        };
+
+        window.openGuestListModal = () => {
+            const modal = document.getElementById('guest-list-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                window.renderGuestTab();
+            }
+        };
+
+        window.openGuestListModalTab = (tabName) => {
+            window.switchGuestTab(tabName);
+            window.openGuestListModal();
+        };
+
+        window.closeGuestListModal = () => {
+            const modal = document.getElementById('guest-list-modal');
+            if (modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        };
+
+        window.switchGuestTab = (tab) => {
+            currentGuestTab = tab;
+            ['total', 'hadir', 'ragu', 'tidak'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) {
+                    if (t === tab) {
+                        el.classList.add('border-b-2');
+                        if (t === 'total') { el.className = "flex-1 py-2 text-center text-gold border-b-2 border-gold"; }
+                        else if (t === 'hadir') { el.className = "flex-1 py-2 text-center text-emerald-400 border-b-2 border-emerald-500"; }
+                        else if (t === 'ragu') { el.className = "flex-1 py-2 text-center text-white border-b-2 border-white"; }
+                        else { el.className = "flex-1 py-2 text-center text-rose-400 border-b-2 border-rose-500"; }
+                    } else {
+                        el.className = "flex-1 py-2 text-center text-white/50 border-b-2 border-transparent";
+                    }
+                }
+            });
+            window.renderGuestTab();
+        };
+
+        window.renderGuestTab = () => {
+            const container = document.getElementById('guest-tab-content');
+            if (!container) return;
+
+            let filtered = [];
+            if (currentGuestTab === 'total') {
+                filtered = window.allRSVPData || [];
+            } else if (currentGuestTab === 'hadir') {
+                filtered = (window.allRSVPData || []).filter(item => item.status === 'Hadir');
+            } else if (currentGuestTab === 'ragu') {
+                filtered = (window.allRSVPData || []).filter(item => item.status === 'Masih Ragu');
+            } else if (currentGuestTab === 'tidak') {
+                filtered = (window.allRSVPData || []).filter(item => item.status === 'Tidak Hadir' || item.status === 'Berhalangan');
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-[10px] text-center opacity-40 py-12 italic text-white">Belum ada data tamu di kategori ini.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(data => {
+                let statusBadge = '';
+                if (data.status === 'Hadir') {
+                    statusBadge = '<span class="text-[7px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 uppercase font-black tracking-wider">Hadir</span>';
+                } else if (data.status === 'Masih Ragu') {
+                    statusBadge = '<span class="text-[7px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 uppercase font-black tracking-wider">Ragu</span>';
+                } else {
+                    statusBadge = '<span class="text-[7px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 uppercase font-black tracking-wider">Izin</span>';
+                }
+
+                return `
+                    <div class="bg-white/5 border border-white/5 p-2 rounded-xl flex justify-between items-center transition-all hover:border-gold/30">
+                        <div class="flex flex-col text-left">
+                            <span class="font-bold text-[10px] text-white leading-tight">${data.name}</span>
+                            <span class="text-[8px] text-gold mt-0.5">${data.relation || 'Rekan'}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            ${statusBadge}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        const startCountdown = () => {
+            // Tanggal Acara: 1 Juli 2026 Jam 13:00 (Bulan di JavaScript dimulai dari 0, jadi 6 = Juli)
+            const eventDate = new Date(2026, 6, 1, 13, 0, 0).getTime();
+            
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const diff = eventDate - now;
+                
+                const safeSet = (id, val) => { 
+                    const el = document.getElementById(id); 
+                    if(el) el.innerText = val.toString().padStart(2, '0'); 
+                };
+                
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    safeSet("days", days);
+                    safeSet("hours", hours);
+                    safeSet("minutes", minutes);
+                    safeSet("seconds", seconds);
+                } else {
+                    safeSet("days", 0);
+                    safeSet("hours", 0);
+                    safeSet("minutes", 0);
+                    safeSet("seconds", 0);
+                    
+                    const titleHeader = document.querySelector("#sec-countdown h3");
+                    if (titleHeader) {
+                        titleHeader.innerText = "Acara Sedang Berlangsung / Selesai";
+                    }
+                }
+            };
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        };
+
+        const init3dEffect = () => {
+            const container = document.getElementById('profile-container-3d');
+            const card = document.getElementById('card-3d');
+            const shine = document.getElementById('shine-3d');
+            
+            if (!container || !card) return;
+
+            let ticking = false;
+
+            const handleMove = (x, y, rect) => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const relativeX = (x - rect.left);
+                        const relativeY = (y - rect.top);
+                        
+                        const rotateX = -((relativeY) - (rect.height / 2)) / 8;
+                        const rotateY = ((relativeX) - (rect.width / 2)) / 8;
+                        card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+                        if (shine) {
+                            const shineX = (relativeX / rect.width) * 100;
+                            const shineY = (relativeY / rect.height) * 100;
+                            shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            };
+
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                handleMove(e.clientX, e.clientY, rect);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                window.requestAnimationFrame(() => {
+                    card.style.transform = `rotateX(5deg) rotateY(-10deg)`;
+                    if (shine) {
+                        shine.style.backgroundPosition = `0% 0%`;
+                    }
+                });
+            });
+
+            container.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const rect = container.getBoundingClientRect();
+                    handleMove(e.touches[0].clientX, e.touches[0].clientY, rect);
+                }
+            }, { passive: true });
+
+            container.addEventListener('touchend', () => {
+                window.requestAnimationFrame(() => {
+                    card.style.transform = `rotateX(5deg) rotateY(-10deg)`;
+                    if (shine) {
+                        shine.style.backgroundPosition = `0% 0%`;
+                    }
+                });
+            });
+        };
+
+        const initPerformanceObserver = () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const photoWrapper = document.getElementById('photo-scale-wrapper');
+            const floatingGuestBtn = document.getElementById('floating-guest-btn');
+
+            const observerOptions = {
+                root: document.getElementById('scroll-container'),
+                threshold: 0.35 
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const currentId = entry.target.id;
+                        
+                        if (currentId === 'sec-opening') {
+                            hideNavigation();
+                        } else {
+                            showNavigation();
+                        }
+
+                        if (floatingGuestBtn) {
+                            if (currentId === 'sec-thanks') {
+                                floatingGuestBtn.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                                floatingGuestBtn.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
+                            } else {
+                                floatingGuestBtn.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
+                                floatingGuestBtn.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+                            }
+                        }
+
+                        if (photoWrapper) {
+                            if (currentId === 'sec-profil') {
+                                photoWrapper.classList.add('animate-photo-in');
+                            } else if (currentId === 'sec-opening') {
+                                photoWrapper.classList.remove('animate-photo-in');
+                            }
+                        }
+
+                        navLinks.forEach(btn => {
+                            btn.classList.remove('active');
+                            let matchTarget = currentId;
+                            if (currentId === 'sec-closing') {
+                                matchTarget = 'sec-thanks';
+                            }
+                            const onClickAttr = btn.getAttribute('onclick');
+                            if (onClickAttr && onClickAttr.includes(matchTarget)) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+        };
+
+        // Execution on Load
         window.onload = () => { 
+            const urlParams = new URLSearchParams(window.location.search);
+            const guestName = urlParams.get("to");
+            if (guestName) {
+                const guestNameEl = document.getElementById("guest-name");
+                if(guestNameEl) guestNameEl.innerText = guestName;
+            }
+
             initFirebase(); 
             startCountdown(); 
             init3dEffect();
@@ -222,11 +547,19 @@
     </script>
 
     <style>
-        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
+        * { 
+            -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
         body, html {
-            height: 100%; width: 100%;
-            background-color: #06142E; /* Luxury Navy */
-            color: #FFFFFF; font-family: 'Montserrat', sans-serif; overflow: hidden;
+            height: 100%; 
+            width: 100%;
+            background-color: #06142E; /* Navy */
+            color: #FFFFFF;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
         }
         
         @keyframes logoEntrance {
@@ -237,11 +570,16 @@
         }
         .animate-logo-in { animation: logoEntrance 1.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        @keyframes pulseSlow { 0%, 100% { opacity: 0.8; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
-        .animate-pulse-slow { animation: pulseSlow 5s ease-in-out infinite; }
-        @keyframes floatSlow { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.03); } }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.03); }
+        }
         .animate-float-slow { animation: floatSlow 3.2s ease-in-out infinite; }
-        @keyframes elasticScaleUp { 0% { opacity: 0; transform: scale(0.15); } 100% { opacity: 1; transform: scale(1); } }
+        
+        @keyframes elasticScaleUp {
+            0% { opacity: 0; transform: scale(0.15); }
+            100% { opacity: 1; transform: scale(1); }
+        }
         .animate-photo-in { animation: elasticScaleUp 1.4s cubic-bezier(0.34, 1.75, 0.45, 1) forwards; }
 
         .font-cinzel { font-family: 'Cinzel', serif; }
@@ -249,115 +587,334 @@
         .font-script { font-family: 'Great Vibes', cursive; }
 
         #app-container {
-            max-width: 450px; margin: 0 auto; height: 100dvh; position: relative;
-            box-shadow: 0 0 100px rgba(5, 10, 21, 0.95); overflow: hidden;
+            max-width: 450px; 
+            margin: 0 auto; 
+            height: 100dvh; 
+            position: relative;
+            box-shadow: 0 0 100px rgba(2, 8, 19, 0.95);
+            overflow: hidden;
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        .bg-video-wrapper { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; transform: translate3d(0,0,0); backface-visibility: hidden; }
-        .bg-video-wrapper video { width: 100%; height: 100%; object-fit: cover; transform: translate3d(0,0,0); }
+        .bg-video-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            transform: translate3d(0,0,0);
+            backface-visibility: hidden;
+        }
+        .bg-video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate3d(0,0,0);
+        }
         .bg-video-overlay {
-            position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(6, 20, 46, 0.95) 0%, rgba(27, 59, 111, 0.70) 50%, rgba(5, 10, 21, 0.98) 100%);
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(6, 20, 46, 0.95) 0%, rgba(27, 59, 111, 0.75) 50%, rgba(2, 8, 19, 0.95) 100%);
             z-index: 1;
         }
 
-        #scroll-container { position: absolute; inset: 0; z-index: 10; height: 100dvh; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        #scroll-container {
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            height: 100dvh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
         #scroll-container::-webkit-scrollbar { display: none; }
 
-        section { width: 100%; height: 100dvh; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; padding: 24px; position: relative; overflow: hidden; flex-shrink: 0; justify-content: center; }
-        .sec-scrollable { height: 100dvh; justify-content: flex-start; padding-top: 35px; padding-bottom: 110px; overflow-y: auto; }
+        section {
+            width: 100%; 
+            height: 100dvh; 
+            scroll-snap-align: start;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 24px; 
+            position: relative;
+            overflow: hidden; 
+            flex-shrink: 0;
+            justify-content: center;
+        }
+        
+        .sec-scrollable { 
+            height: 100dvh; 
+            justify-content: flex-start; 
+            padding-top: 35px; 
+            padding-bottom: 110px; 
+            overflow-y: auto;
+        }
 
-        /* Bingkai Foto 3D - Akselerasi GPU (Aksen Gold) */
         .crystal-frame-3d {
-            width: 210px; height: 285px; position: relative; transform-style: preserve-3d; transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); perspective: 1200px; will-change: transform;
+            width: 210px; 
+            height: 285px; 
+            position: relative;
+            transform-style: preserve-3d; 
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            perspective: 1200px;
+            will-change: transform;
         }
         .glass-layer {
-            position: absolute; inset: 0; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border-radius: 24px; 
-            border: 3px solid #D4AF37; /* Luxury Gold */
-            box-shadow: 0 40px 80px rgba(5, 10, 21, 0.85), inset 0 0 25px rgba(212, 175, 55, 0.2); 
-            overflow: hidden; display: flex; align-items: center; justify-content: center; transform: translateZ(20px); transform-style: preserve-3d;
+            position: absolute; 
+            inset: 0; 
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border-radius: 24px; 
+            border: 3px solid #D4AF37; /* Gold */
+            box-shadow: 0 40px 80px rgba(2, 8, 19, 0.85), inset 0 0 25px rgba(212, 175, 55, 0.3); 
+            overflow: hidden;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            transform: translateZ(20px);
+            transform-style: preserve-3d;
         }
-        .glass-layer img { width: 100%; height: 100%; object-fit: cover; transform: translateZ(10px) scale(1.05); transition: transform 0.3s ease-out; }
-        .shine-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 70%); transform: translateZ(35px); pointer-events: none; transition: background-position 0.15s ease-out; background-size: 200% 200%; background-position: 0% 0%; }
+        .glass-layer img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transform: translateZ(10px) scale(1.05);
+            transition: transform 0.3s ease-out;
+        }
         
-        .frame-corner { position: absolute; width: 24px; height: 24px; border: 3px solid #D4AF37; z-index: 50; transform: translateZ(45px); pointer-events: none; filter: drop-shadow(0 4px 10px rgba(5, 10, 21, 0.5)); }
+        .shine-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0) 30%, rgba(212,175,55,0.18) 50%, rgba(255,255,255,0) 70%);
+            transform: translateZ(35px);
+            pointer-events: none;
+            transition: background-position 0.15s ease-out;
+            background-size: 200% 200%;
+            background-position: 0% 0%;
+        }
+
+        .frame-corner {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #D4AF37; /* Gold */
+            z-index: 50;
+            transform: translateZ(45px);
+            pointer-events: none;
+            filter: drop-shadow(0 4px 10px rgba(2, 8, 19, 0.5));
+        }
         .corner-tl { top: -8px; left: -8px; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
         .corner-tr { top: -8px; right: -8px; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
         .corner-bl { bottom: -8px; left: -8px; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
         .corner-br { bottom: -8px; right: -8px; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
 
-        #nav-container { will-change: transform, opacity; transform: translate3d(0, 0, 0); }
+        #nav-container {
+            will-change: transform, opacity;
+            transform: translate3d(0, 0, 0);
+        }
 
         .bottom-nav {
             background-color: rgba(27, 59, 111, 0.95); /* Royal Blue */
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 35px; padding: 12px 8px; display: flex; justify-content: space-around; align-items: center; 
-            box-shadow: 0 20px 50px rgba(5, 10, 21, 0.9); backdrop-filter: blur(15px); overflow: visible !important;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 35px; 
+            padding: 12px 8px; 
+            display: flex;
+            justify-content: space-around; 
+            align-items: center; 
+            box-shadow: 0 20px 50px rgba(2, 8, 19, 0.9);
+            backdrop-filter: blur(15px);
+            overflow: visible !important;
         }
         
-        .nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; color: rgba(212, 175, 55, 0.45); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); perspective: 500px; background: transparent; border: none; outline: none; }
+        .nav-link {
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            flex: 1; 
+            color: rgba(229, 229, 229, 0.45);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            perspective: 500px;
+            background: transparent;
+            border: none;
+            outline: none;
+        }
         .nav-link:focus, .nav-link:active { outline: none; border: none; box-shadow: none; }
         .nav-link span { font-size: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
         .nav-link.active { color: #D4AF37 !important; transform: scale(1.15) translateY(-4px); text-shadow: 0 0 10px rgba(212, 175, 55, 0.6); }
 
-        .nav-icon-3d { width: 36px; height: 36px; margin-bottom: 2px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(5, 10, 21, 0.6)); transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); transform-style: preserve-3d; will-change: transform; border: none !important; background: transparent !important; padding: 0 !important; }
-        .nav-link.active .nav-icon-3d { transform: translateY(-6px) scale(1.25) rotateX(15deg) rotateY(-10deg); filter: drop-shadow(6px 10px 8px rgba(5, 10, 21, 0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6)); }
+        .nav-icon-3d {
+            width: 36px; 
+            height: 36px; 
+            margin-bottom: 2px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(2, 8, 19, 0.6));
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        
+        .nav-link.active .nav-icon-3d {
+            transform: translateY(-6px) scale(1.25) rotateX(15deg) rotateY(-10deg);
+            filter: drop-shadow(6px 10px 8px rgba(2, 8, 19, 0.8)) drop-shadow(0 0 8px rgba(212, 175, 55, 0.6));
+        }
 
         .btn-pop {
-            background: linear-gradient(135deg, #D4AF37 0%, #F9F1D8 100%); /* Gold Gradient */
-            color: #06142E; /* Navy Text */
-            font-weight: 800; padding: 12px 28px; border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.4); 
-            letter-spacing: 0.15em; text-transform: uppercase; font-size: 11px; transition: all 0.3s ease;
-            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+            background: linear-gradient(135deg, #D4AF37 0%, #F4E087 100%); /* Gold gradient */
+            color: #06142E; /* Navy */
+            font-weight: 800; 
+            padding: 12px 28px;
+            border-radius: 50px; 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            letter-spacing: 0.15em;
+            text-transform: uppercase; 
+            font-size: 11px; 
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.3);
         }
-        .btn-pop:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2); }
+        .btn-pop:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(212, 175, 55, 0.15); }
 
-        .side-floating-controls { position: absolute; bottom: 110px; right: 20px; z-index: 400; display: flex; flex-direction: column; gap: 12px; }
+        .side-floating-controls {
+            position: absolute;
+            bottom: 110px;
+            right: 20px;
+            z-index: 400;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .side-btn {
-            width: 44px; height: 44px; border-radius: 50%; 
+            width: 44px; 
+            height: 44px; 
+            border-radius: 50%; 
             background: rgba(27, 59, 111, 0.85); /* Royal Blue */
-            backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(212, 175, 55, 0.5); /* Gold */
-            box-shadow: 0 8px 24px rgba(5, 10, 21, 0.6); transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); color: #D4AF37; outline: none;
+            backdrop-filter: blur(12px); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 1px solid rgba(212, 175, 55, 0.4); /* Gold */
+            box-shadow: 0 8px 24px rgba(2, 8, 19, 0.6);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            color: #D4AF37;
+            outline: none;
         }
         .side-btn:active { transform: scale(0.9); }
 
         input, select, textarea {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 12px; padding: 12px 14px; color: #FFFFFF; font-size: 11px; width: 100%; outline: none; transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.04); 
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px; 
+            padding: 12px 14px; 
+            color: #FFFFFF; 
+            font-size: 11px; 
+            width: 100%; 
+            outline: none;
+            transition: all 0.3s ease;
         }
-        input:focus, select:focus, textarea:focus { border-color: rgba(212, 175, 55, 0.8); background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        input:focus, select:focus, textarea:focus {
+            border-color: rgba(212, 175, 55, 0.6); /* Gold focus */
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
         select option { background-color: #1B3B6F !important; color: #FFFFFF !important; }
 
-        .recap-item { background: rgba(27, 59, 111, 0.65); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 14px; padding: 8px 4px; flex: 1; text-align: center; backdrop-filter: blur(5px); }
-
-        .countdown-num { font-size: 1.75rem; font-weight: 800; color: #D4AF37; line-height: 1; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .countdown-num { font-size: 1.75rem; font-weight: 800; color: #D4AF37; line-height: 1; }
         .countdown-label { font-size: 9px; text-transform: uppercase; color: rgba(255, 255, 255, 0.8); font-weight: 700; margin-top: 6px; letter-spacing: 0.1em; }
 
         .glass-panel {
             background: rgba(27, 59, 111, 0.35); /* Royal Blue Transparan */
-            backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 28px; box-shadow: 0 25px 65px rgba(5, 10, 21, 0.65); width: 100%;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 28px;
+            box-shadow: 0 25px 65px rgba(2, 8, 19, 0.65); 
+            width: 100%;
         }
 
         .academic-diploma-frame {
-            background: rgba(27, 59, 111, 0.55); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 20px; position: relative; padding: 24px; box-shadow: 0 25px 65px rgba(5, 10, 21, 0.7);
+            background: rgba(27, 59, 111, 0.45); 
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.35); /* Gold */
+            border-radius: 20px;
+            position: relative;
+            padding: 24px;
+            box-shadow: 0 25px 65px rgba(2, 8, 19, 0.65);
         }
-        .academic-diploma-frame::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 14px; pointer-events: none; }
+        .academic-diploma-frame::before {
+            content: '';
+            position: absolute;
+            inset: 6px;
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 14px;
+            pointer-events: none;
+        }
 
         .countdown-capsule {
-            background: rgba(6, 20, 46, 0.6); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 999px; padding: 20px 8px; box-shadow: 0 10px 25px rgba(5, 10, 21, 0.5), inset 0 -4px 10px rgba(212, 175, 55, 0.1);
+            background: rgba(6, 20, 46, 0.6); /* Navy */
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 999px;
+            padding: 20px 8px;
+            box-shadow: 0 10px 25px rgba(2, 8, 19, 0.5), inset 0 -4px 10px rgba(212, 175, 55, 0.1);
         }
 
         .frame-straight {
-            width: 100%; max-width: 320px; height: 180px; border-radius: 16px; border: 2px solid rgba(212, 175, 55, 0.45); box-shadow: 0 12px 35px rgba(5, 10, 21, 0.7); overflow: hidden; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); position: relative;
+            width: 100%; 
+            max-width: 320px; 
+            height: 180px;
+            border-radius: 16px; 
+            border: 2px solid rgba(212, 175, 55, 0.45); /* Gold */
+            box-shadow: 0 12px 35px rgba(2, 8, 19, 0.7); 
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(12px);
+            position: relative;
         }
-        .location-visual-card { width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1577086664693-894d8405334a?auto=format&fit=crop&q=80&w=800'); background-size: cover; background-position: center; position: relative; }
-        .map-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(6, 20, 46, 0.95) 0%, rgba(6, 20, 46, 0.3) 100%); display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 20px; }
-        .pin-pulse { position: absolute; width: 16px; height: 16px; background: #D4AF37; border-radius: 50%; animation: pulse 2s infinite; top: 42%; left: 50%; transform: translate(-50%, -50%); }
+
+        .location-visual-card {
+            width: 100%; 
+            height: 100%; 
+            background: url('https://images.unsplash.com/photo-1577086664693-894d8405334a?auto=format&fit=crop&q=80&w=800'); 
+            background-size: cover; 
+            background-position: center; 
+            position: relative;
+        }
+        .map-overlay {
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(0deg, rgba(6, 20, 46, 0.95) 0%, rgba(6, 20, 46, 0.3) 100%);
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            align-items: center; 
+            padding: 20px;
+        }
+        .pin-pulse {
+            position: absolute; 
+            width: 16px; 
+            height: 16px; 
+            background: #D4AF37; /* Gold */
+            border-radius: 50%;
+            animation: pulse 2s infinite; 
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
         
-        #public-messages { max-height: 160px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #D4AF37 transparent; padding: 8px; width: 100%; }
+        #public-messages { 
+            max-height: 160px;
+            overflow-y: auto; 
+            scrollbar-width: thin; 
+            scrollbar-color: #D4AF37 transparent;
+            padding: 8px; 
+            width: 100%; 
+        }
         #public-messages::-webkit-scrollbar { width: 4px; }
-        #public-messages::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+        #public-messages::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; } 
 
         @keyframes pulse {
             0% { transform: translate(-50%, -50%) scale(0.9); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.8); }
@@ -366,12 +923,15 @@
         }
 
         .fade-in-up { animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
 
         #photo-scale-wrapper { will-change: transform, opacity; }
     </style>
 </head>
-<body class="bg-gradient-to-b from-[#06142E] to-[#03060E] text-white">
+<body class="bg-gradient-to-b from-[#06142E] to-[#020813] text-white">
 
 <div id="app-container" class="relative">
 
@@ -381,15 +941,15 @@
     
     <div class="bg-video-wrapper">
         <video autoplay loop muted playsinline preload="auto">
-            <!-- Updated Background Video -->
             <source src="https://res.cloudinary.com/drs5bj8tq/video/upload/v1782467447/Vertical_luxury_academic_anhigg.mp4" type="video/mp4">
         </video>
         <div class="bg-video-overlay"></div>
     </div>
 
+    <!-- PERSISTENT FLOATING CONTROLS -->
     <div class="side-floating-controls">
         <button id="floating-guest-btn" onclick="openGuestListModal()" class="side-btn animate-float-slow flex items-center justify-center p-1.5 transition-all duration-500 transform scale-0 opacity-0 pointer-events-none" title="Daftar Kehadiran">
-            <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782363055/Desain_tanpa_judul_10_g14gyf.png" alt="Logo Kehadiran" class="w-full h-full object-contain filter drop-shadow-md brightness-0 invert sepia(1) saturate(5) hue-rotate(10deg)"> <!-- Tint to gold approximation -->
+            <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782363055/Desain_tanpa_judul_10_g14gyf.png" alt="Logo Kehadiran" class="w-full h-full object-contain">
         </button>
 
         <button onclick="toggleMusic()" class="side-btn" id="music-btn-container" title="Putar/Jeda Musik">
@@ -400,15 +960,14 @@
     </div>
 
     <div id="scroll-container">
-
         <!-- 1. OPENING SECTION -->
         <section id="sec-opening">
             <div class="text-center z-10 w-full px-6 mt-10 fade-in-up">
-                <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1772094997/LOGO_g1dvzg.png" alt="Logo UNPAS" class="w-28 mx-auto mb-6 drop-shadow-[0_12px_20px_rgba(212,175,55,0.25)] animate-logo-in">
+                <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1772094997/LOGO_g1dvzg.png" alt="Logo UNPAS" class="w-28 mx-auto mb-6 drop-shadow-[0_12px_20px_rgba(212,175,55,0.35)] animate-logo-in">
                 
-                <p class="font-script text-5xl mb-2 text-[#D4AF37]" style="text-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);">Undangan</p>
+                <p class="font-script text-5xl mb-2 text-gold" style="-webkit-text-stroke: 0.5px #D4AF37; text-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);">Undangan</p>
                 <h2 class="font-cinzel font-bold text-[13px] tracking-[0.25em] mb-3 uppercase text-white/90">Sidang Promosi Doktor</h2>
-                <p class="text-[9px] tracking-[0.3em] opacity-80 mb-8 border-y border-gold/30 py-2 uppercase font-bold text-center text-white">Pascasarjana Universitas Pasundan</p>
+                <p class="text-[9px] tracking-[0.3em] opacity-80 mb-8 border-y border-gold/30 py-2 uppercase font-bold text-center text-gold">Pascasarjana Universitas Pasundan</p>
                 
                 <h1 class="font-playfair font-bold text-white mb-8 tracking-wide px-1 drop-shadow-md leading-snug" style="font-size: clamp(14px, 4.5vw, 18px);">
                     Dr. Aris Ariyanto, S.E., M.M.
@@ -422,9 +981,9 @@
                     <div class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-gold/60"></div>
                     
                     <div class="bg-white/5 border border-gold/20 py-4 px-6 rounded-2xl backdrop-blur-md shadow-2xl text-center">
-                        <p class="opacity-50 text-[8px] uppercase tracking-[0.25em] mb-1.5 font-bold text-white">Kepada Yth. Bapak/Ibu/Saudara/i:</p>
+                        <p class="opacity-50 text-[8px] uppercase tracking-[0.25em] mb-1.5 font-bold text-gold">Kepada Yth. Bapak/Ibu/Saudara/i:</p>
                         <div class="h-[1px] w-12 bg-gradient-to-r from-transparent via-gold/45 to-transparent mx-auto mb-2"></div>
-                        <p id="guest-name" class="font-playfair text-[#D4AF37] font-bold text-lg tracking-wide italic drop-shadow-[0_2px_4px_rgba(5,10,21,0.9)]">Tamu Undangan</p>
+                        <p id="guest-name" class="font-playfair text-white font-bold text-lg tracking-wide italic drop-shadow-[0_2px_4px_rgba(2,8,19,0.9)]">Tamu Undangan</p>
                     </div>
                 </div>
                 <br>
@@ -435,25 +994,24 @@
         <!-- 2. PROFILE SECTION -->
         <section id="sec-profil" class="snap-start">
             <div class="text-center w-full px-6 -mt-2">
-                <p class="font-script text-[#D4AF37] mb-1 text-center font-bold whitespace-nowrap drop-shadow-md" style="font-size: clamp(24px, 7.5vw, 32px);">Assalamu’alaikum Wr. Wb.</p>
+                <p class="font-script text-gold mb-1 text-center font-bold whitespace-nowrap" style="font-size: clamp(24px, 7.5vw, 32px);">Assalamu’alaikum Wr. Wb.</p>
                 <p class="text-[18px] font-bold text-white mb-1 text-center tracking-wide font-playfair italic">Salam Sejahtera,</p>
-                <p class="text-[11px] leading-relaxed text-white/90 font-normal text-center px-2 mb-6">
+                <p class="text-[11px] leading-relaxed text-white font-normal text-center px-2 mb-6">
                     Mengundang dengan hormat Bapak/Ibu/Saudara untuk <br>
                     menghadiri Ujian Sidang Promosi mencapai gelar <br>
-                    <span class="whitespace-nowrap font-semibold text-gold">Doktor Ilmu Manajemen Pascasarjana Universitas Pasundan</span>
+                    <span class="whitespace-nowrap text-gold font-bold">Doktor Ilmu Manajemen</span>
                 </p>
                 
                 <div class="profile-3d-container flex justify-center items-center py-2" id="profile-container-3d">
                     <div id="photo-scale-wrapper" class="opacity-0 transition-all duration-300">
-                        <div class="crystal-frame-3d shadow-gold/20 shadow-2xl" id="card-3d">
+                        <div class="crystal-frame-3d shadow-gold/30 shadow-2xl" id="card-3d">
                             <div class="frame-corner corner-tl"></div>
                             <div class="frame-corner corner-tr"></div>
                             <div class="frame-corner corner-bl"></div>
                             <div class="frame-corner corner-br"></div>
                             
                             <div class="glass-layer">
-                                <!-- Updated Profile Photo -->
-                                <img src="https://res.cloudinary.com/drs5bj8tq/image/upload/v1782467459/WhatsApp_Image_2026-06-26_at_16.32.19_ow6wsy.jpg" alt="Foto Dr. Aris Ariyanto">
+                                <img src="https://res.cloudinary.com/drs5bj8tq/image/upload/v1782467459/WhatsApp_Image_2026-06-26_at_16.32.19_ow6wsy.jpg" alt="Foto Profil">
                                 <div class="shine-overlay" id="shine-3d"></div>
                             </div>
                         </div>
@@ -475,31 +1033,33 @@
                     
                     <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1772094997/LOGO_g1dvzg.png" alt="Logo UNPAS" class="w-12 mx-auto mb-4 drop-shadow-md z-10 relative">
                     
-                    <p class="text-[8px] font-bold text-[#D4AF37] uppercase tracking-[0.2em] mb-2 z-10 relative">Judul Disertasi</p>
-                    <h2 class="font-cinzel text-[9px] font-bold text-white leading-relaxed tracking-wide uppercase px-1 mb-4 border-b border-gold/20 pb-4 z-10 relative">
-                        Peran Kepuasan Pasien dalam mediasi Pengaruh Bauran Pemasaran (11P) dan Kualitas Pelayanan Terhadap Kepercayaan Pasien Rumah Sakit Wilayah Tangerang Raya 
-                        <br><span class="font-montserrat italic text-[8px] font-medium opacity-80 mt-1 inline-block">(Studi pada Pengguna BPJS Kesehatan)</span>
+                    <p class="text-[8px] font-bold text-gold uppercase tracking-[0.2em] mb-2 z-10 relative">Judul Disertasi</p>
+                    <h2 class="font-cinzel text-[9.5px] font-bold text-white leading-relaxed tracking-wide uppercase px-1 mb-2 border-b border-gold/20 pb-3 z-10 relative">
+                        Peran Kepuasan Pasien dalam mediasi Pengaruh Bauran Pemasaran (11P) dan Kualitas Pelayanan Terhadap Kepercayaan Pasien Rumah Sakit Wilayah Tangerang Raya
                     </h2>
+                    <p class="font-montserrat text-[8.5px] text-gold font-medium italic mb-4 leading-normal px-2 z-10 relative">
+                        (Studi pada Pengguna BPJS Kesehatan)
+                    </p>
                     
-                    <div class="flex items-center justify-center gap-6 my-4 z-10 relative">
+                    <div class="flex items-center justify-center gap-6 my-4 border-t border-gold/20 pt-4 z-10 relative">
                         <div class="text-right">
-                            <p class="font-bold text-lg text-[#D4AF37] uppercase tracking-wider">Rabu</p>
+                            <p class="font-bold text-lg text-white uppercase tracking-wider">Rabu</p>
                         </div>
-                        <div class="h-8 w-px bg-gold/40"></div>
+                        <div class="h-8 w-px bg-gold/45"></div>
                         <div class="text-left">
-                            <p class="text-[9px] text-[#D4AF37] tracking-widest font-bold uppercase">Juli</p>
+                            <p class="text-[9px] text-gold tracking-widest font-bold uppercase">Juli</p>
                             <p class="text-xl font-black text-white leading-none">01</p>
-                            <p class="text-[9px] text-[#D4AF37] tracking-widest font-bold">2026</p>
+                            <p class="text-[9px] text-gold tracking-widest font-bold">2026</p>
                         </div>
                     </div>
                     
-                    <p class="text-[12px] font-bold text-[#1B3B6F] bg-gradient-to-r from-[#D4AF37] to-[#F9F1D8] uppercase tracking-[0.2em] rounded-full inline-block px-5 py-1.5 mb-4 font-playfair z-10 relative shadow-lg">
+                    <p class="text-[12px] font-bold text-white uppercase tracking-[0.2em] border-y border-gold/30 inline-block px-4 py-1.5 mb-3 font-playfair z-10 relative">
                         Pukul 13.00 WIB
                     </p>
                     
-                    <div class="w-full z-10 relative border-t border-gold/20 pt-3">
-                        <p class="text-[10px] font-bold text-white uppercase mb-1 tracking-wider">Aula Lt.5 Pascasarjana Universitas Pasundan</p>
-                        <p class="text-[9px] text-white/70 italic font-medium">Jl. Sumatera No. 41, Babakan Ciamis, Bandung</p>
+                    <div class="w-full z-10 relative">
+                        <p class="text-[10px] font-bold text-gold uppercase mb-1 tracking-wider">Pascasarjana Universitas Pasundan</p>
+                        <p class="text-[9px] text-white/80 italic font-medium">Jl. Sumatera No. 41, Babakan Ciamis, Bandung</p>
                     </div>
                 </div>
             </div>
@@ -508,7 +1068,7 @@
         <!-- 4. COUNTDOWN SECTION -->
         <section id="sec-countdown">
             <div class="w-full max-w-[420px] text-center px-6">
-                <h3 class="font-cinzel text-xl font-bold text-[#D4AF37] mb-8 tracking-[0.3em] uppercase opacity-90 italic drop-shadow-md">Menghitung Hari</h3>
+                <h3 class="font-cinzel text-xl font-bold text-gold mb-8 tracking-[0.3em] uppercase opacity-90 italic">Menghitung Hari</h3>
                 
                 <div class="flex justify-center gap-3">
                     <div class="flex flex-col items-center flex-1">
@@ -529,19 +1089,19 @@
                     </div>
                 </div>
                 
-                <p class="text-[9px] text-gold/50 mt-12 tracking-[0.4em] font-bold uppercase italic border-t border-gold/20 pt-5 inline-block px-8 text-center">
+                <p class="text-[9px] text-gold/60 mt-12 tracking-[0.4em] font-bold uppercase italic border-t border-gold/20 pt-5 inline-block px-8 text-center">
                     UNPAS Bandung
                 </p>
             </div>
         </section>
 
-        <!-- 5. TIM PROMOTOR -->
+        <!-- 5. TIM PROMOTOR & DEWAN AKADEMIK -->
         <section id="sec-promotor" class="snap-start flex flex-col justify-center items-center">
             <div class="w-full max-w-[420px] px-6 text-center">
-                <h3 class="font-playfair text-lg font-bold text-[#D4AF37] mb-6 uppercase tracking-[0.25em] border-b border-gold/30 pb-2 italic">Dewan Akademik</h3>
+                <h3 class="font-playfair text-lg font-bold text-gold mb-6 uppercase tracking-[0.25em] border-b border-gold/30 pb-2 italic">Dewan Akademik</h3>
                 
                 <div class="space-y-4">
-                    <div class="glass-panel p-6 bg-[#06142E]/70 text-left border-2 border-gold/30 shadow-2xl relative overflow-hidden rounded-2xl max-w-[360px] mx-auto">
+                    <div class="glass-panel p-6 bg-[#020813]/50 text-left border-2 border-gold/30 shadow-2xl relative overflow-hidden rounded-2xl max-w-[360px] mx-auto">
                         <div class="absolute top-2.5 left-2.5 w-3.5 h-3.5 border-t-2 border-l-2 border-gold/50"></div>
                         <div class="absolute top-2.5 right-2.5 w-3.5 h-3.5 border-t-2 border-r-2 border-gold/50"></div>
                         <div class="absolute bottom-2.5 left-2.5 w-3.5 h-3.5 border-b-2 border-l-2 border-gold/50"></div>
@@ -564,7 +1124,7 @@
         <!-- 6. MAPS & LOCATION -->
         <section id="sec-maps">
             <div class="w-full text-center px-6">
-                <h3 class="font-playfair text-2xl font-bold text-[#D4AF37] mb-6 italic tracking-widest uppercase text-center drop-shadow-md">Lokasi Acara</h3>
+                <h3 class="font-playfair text-2xl font-bold text-gold mb-6 italic tracking-widest uppercase text-center">Lokasi Acara</h3>
                 
                 <a href="https://maps.app.goo.gl/cSqE8X2fFmxj6YKG8" target="_blank" class="block w-full focus:outline-none">
                     <div class="flex justify-center items-center w-full mb-6">
@@ -572,11 +1132,11 @@
                             <div class="location-visual-card">
                                 <div class="map-overlay">
                                     <div class="pin-pulse"></div>
-                                    <svg class="w-9 h-9 text-[#D4AF37] mb-2 drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-9 h-9 text-gold mb-2 drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
                                     </svg>
                                     <div class="bg-[#06142E]/90 backdrop-blur-md px-4 py-2 rounded-full border border-gold/45 shadow-xl active:scale-95 transition-transform">
-                                        <p class="font-montserrat text-[#D4AF37] font-bold text-[8px] uppercase tracking-widest text-center">Navigasi Google Maps</p>
+                                        <p class="font-montserrat text-gold font-bold text-[8px] uppercase tracking-widest text-center">Navigasi Google Maps</p>
                                     </div>
                                 </div>
                             </div>
@@ -584,8 +1144,8 @@
                     </div>
                 </a>
                 
-                <div class="glass-panel p-5 border-gold/20 bg-[#1B3B6F]/40">
-                    <p class="font-playfair text-base text-[#D4AF37] font-bold mb-1.5 uppercase tracking-wider text-center">Pascasarjana UNPAS</p>
+                <div class="glass-panel p-5 border-gold/20 bg-[#1B3B6F]/20">
+                    <p class="font-playfair text-base text-gold font-bold mb-1.5 uppercase tracking-wider text-center">Pascasarjana UNPAS</p>
                     <div class="h-[1px] w-12 bg-gold/40 mx-auto mb-3"></div>
                     <p class="font-montserrat text-[10px] text-white/80 leading-relaxed font-medium uppercase tracking-tight text-center px-2">
                         Jl. Sumatera No. 41, Babakan Ciamis, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40117
@@ -594,31 +1154,32 @@
             </div>
         </section>
 
-        <!-- 7. RSVP -->
+        <!-- 7. RSVP & REAL-TIME GUEST MESSAGES -->
         <section id="sec-thanks" class="sec-scrollable">
             <div class="w-full max-w-[420px] px-4 text-center">
-                <h3 class="font-playfair text-xl font-bold text-[#D4AF37] mb-3 uppercase tracking-widest italic">RSVP & Ucapan</h3>
+                <h3 class="font-playfair text-xl font-bold text-gold mb-3 uppercase tracking-widest italic">RSVP & Ucapan</h3>
                 
-                <div class="glass-panel p-5 border-gold/20 mb-4 shadow-2xl relative overflow-hidden bg-[#06142E]/80 backdrop-blur-md">
+                <div class="glass-panel p-5 border-gold/30 mb-4 shadow-2xl relative overflow-hidden bg-black/30 backdrop-blur-md">
                     <div class="absolute -top-12 -left-12 w-24 h-24 bg-gold/10 rounded-full filter blur-xl"></div>
-                    
+                    <div class="absolute -bottom-12 -right-12 w-24 h-24 bg-royalblue/20 rounded-full filter blur-xl"></div>
+
                     <div class="grid grid-cols-4 gap-2">
-                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/10 to-white/[0.02] border border-white/10 p-3 shadow-[0_8px_20px_rgba(5,10,21,0.5)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('total')">
-                            <p id="count-total" class="text-sm font-black text-white font-cinzel leading-none drop-shadow-md">0</p>
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/10 to-white/[0.02] border border-white/10 p-3 shadow-[0_8px_20px_rgba(2,8,19,0.5),_inset_0_1px_0_rgba(255,255,255,0.1)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('total')">
+                            <p id="count-total" class="text-sm font-black text-gold font-cinzel leading-none drop-shadow-md">0</p>
                             <p class="text-[7px] font-bold text-white uppercase tracking-wider mt-1.5">Total</p>
-                            <div class="absolute inset-x-0 bottom-0 h-0.5 bg-white/30"></div>
+                            <div class="absolute inset-x-0 bottom-0 h-0.5 bg-gold/50"></div>
                         </div>
-                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-500/10 to-emerald-500/[0.02] border border-emerald-500/25 p-3 shadow-[0_8px_20px_rgba(16,185,129,0.15)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('hadir')">
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-emerald-500/10 to-emerald-500/[0.02] border border-emerald-500/25 p-3 shadow-[0_8px_20px_rgba(16,185,129,0.15),_inset_0_1px_0_rgba(16,185,129,0.1)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('hadir')">
                             <p id="count-hadir" class="text-sm font-black text-emerald-400 font-cinzel leading-none drop-shadow-md">0</p>
                             <p class="text-[7px] font-bold text-emerald-300 uppercase tracking-wider mt-1.5">Hadir</p>
                             <div class="absolute inset-x-0 bottom-0 h-0.5 bg-emerald-500/50"></div>
                         </div>
-                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-gold/15 to-gold/[0.02] border border-gold/35 p-3 shadow-[0_8px_20px_rgba(212,175,55,0.2)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('ragu')">
-                            <p id="count-ragu" class="text-sm font-black text-[#D4AF37] font-cinzel leading-none drop-shadow-md">0</p>
-                            <p class="text-[7px] font-bold text-[#D4AF37] uppercase tracking-wider mt-1.5">Ragu</p>
-                            <div class="absolute inset-x-0 bottom-0 h-0.5 bg-gold/50"></div>
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-white/15 to-white/[0.02] border border-white/35 p-3 shadow-[0_8px_20px_rgba(192,192,192,0.2),_inset_0_1px_0_rgba(192,192,192,0.15)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('ragu')">
+                            <p id="count-ragu" class="text-sm font-black text-white font-cinzel leading-none drop-shadow-md">0</p>
+                            <p class="text-[7px] font-bold text-white uppercase tracking-wider mt-1.5">Ragu</p>
+                            <div class="absolute inset-x-0 bottom-0 h-0.5 bg-white/50"></div>
                         </div>
-                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-rose-500/10 to-rose-500/[0.02] border border-rose-500/25 p-3 shadow-[0_8px_20px_rgba(244,63,94,0.15)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('tidak')">
+                        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-rose-500/10 to-rose-500/[0.02] border border-rose-500/25 p-3 shadow-[0_8px_20px_rgba(244,63,94,0.15),_inset_0_1px_0_rgba(244,63,94,0.1)] transition-transform duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer" onclick="openGuestListModalTab('tidak')">
                             <p id="count-tidak" class="text-sm font-black text-rose-400 font-cinzel leading-none drop-shadow-md">0</p>
                             <p class="text-[7px] font-bold text-rose-300 uppercase tracking-wider mt-1.5">Izin</p>
                             <div class="absolute inset-x-0 bottom-0 h-0.5 bg-rose-500/50"></div>
@@ -626,10 +1187,11 @@
                     </div>
                 </div>
 
-                <div class="glass-panel p-4 text-left border-gold/20 space-y-3 mb-4 shadow-2xl bg-[#06142E]/75">
+                <div class="glass-panel p-4 text-left border-gold/20 space-y-3 mb-4 shadow-2xl bg-black/25">
                     <div class="grid grid-cols-2 gap-2">
                         <input id="rsvp-name" type="text" placeholder="Nama Lengkap" class="py-2.5">
-                        <select id="rsvp-relation" class="py-2.5 bg-[#1B3B6F] text-white border border-gold/20 rounded-12">
+                        
+                        <select id="rsvp-relation" class="py-2.5 bg-[#1B3B6F] text-white border border-white/10 rounded-12">
                             <option value="Rekan Sejawat">Rekan Sejawat</option>
                             <option value="Keluarga">Keluarga</option>
                             <option value="Mahasiswa">Mahasiswa</option>
@@ -638,24 +1200,24 @@
                     </div>
                     <textarea id="rsvp-message" placeholder="Tulis doa restu atau ucapan terbaik..." rows="2" class="py-2.5"></textarea>
                     
-                    <select id="rsvp-status" class="py-2.5 bg-[#1B3B6F] text-white border border-gold/20 rounded-12">
+                    <select id="rsvp-status" class="py-2.5 bg-[#1B3B6F] text-white border border-white/10 rounded-12">
                         <option value="" disabled selected>Konfirmasi Kehadiran</option>
                         <option value="Hadir">Insya Allah Hadir</option>
                         <option value="Masih Ragu">Masih Ragu</option>
                         <option value="Tidak Hadir">Berhalangan Hadir / Berdoa dari Jauh</option>
                     </select>
                     
-                    <button id="btn-send-rsvp" onclick="submitRSVP()" class="bg-gradient-to-r from-[#D4AF37] to-[#F9F1D8] text-[#06142E] font-black py-3 rounded-xl text-[10px] uppercase shadow-xl w-full tracking-widest active:scale-[0.98] transition-all hover:brightness-110">
+                    <button id="btn-send-rsvp" onclick="submitRSVP()" class="bg-gradient-to-r from-gold to-lightgold text-[#06142E] font-black py-3 rounded-xl text-[10px] uppercase shadow-xl w-full tracking-widest active:scale-[0.98] transition-all hover:brightness-110">
                         Kirim Konfirmasi
                     </button>
                 </div>
 
-                <div id="public-messages" class="w-full shadow-inner bg-black/30 border border-gold/10 rounded-2xl mb-5">
+                <div id="public-messages" class="w-full shadow-inner bg-black/15 border border-gold/10 rounded-2xl mb-5">
                     <p class="text-[10px] opacity-40 italic py-4 text-center text-white">Belum ada ucapan doa masuk.</p>
                 </div>
                 
                 <div class="text-center pb-6 border-t border-gold/20 pt-4">
-                    <p class="text-[9px] uppercase tracking-[0.4em] opacity-50 mb-1.5 font-bold font-montserrat text-gold">Hormat Kami,</p>
+                    <p class="text-[9px] uppercase tracking-[0.4em] opacity-60 mb-1.5 font-bold font-montserrat text-gold">Hormat Kami,</p>
                     <h2 class="font-playfair text-sm font-bold text-white tracking-widest leading-tight">Dr. Aris Ariyanto, S.E., M.M.</h2>
                 </div>
             </div>
@@ -664,25 +1226,25 @@
         <!-- 8. CLOSING SECTION -->
         <section id="sec-closing" class="snap-start text-center">
             <div class="w-full max-w-[420px] px-6 py-4">
-                <div class="glass-panel p-6 border-gold/30 shadow-2xl relative overflow-hidden bg-[#06142E]/85 backdrop-blur-md">
+                <div class="glass-panel p-6 border-gold/40 shadow-2xl relative overflow-hidden bg-black/35 backdrop-blur-md">
                     <div class="absolute -bottom-10 -right-10 w-24 h-24 bg-gold/15 rounded-full filter blur-xl"></div>
-                    <div class="absolute -top-10 -left-10 w-24 h-24 bg-[#1B3B6F]/40 rounded-full filter blur-xl"></div>
+                    <div class="absolute -top-10 -left-10 w-24 h-24 bg-royalblue/20 rounded-full filter blur-xl"></div>
                     
-                    <div class="w-16 h-16 mx-auto mb-5 bg-[#1B3B6F]/50 rounded-full flex items-center justify-center border border-gold/40 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
-                        <svg class="w-8 h-8 text-[#D4AF37]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <div class="w-16 h-16 mx-auto mb-5 bg-gold/10 rounded-full flex items-center justify-center border border-gold/40 shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+                        <svg class="w-8 h-8 text-gold" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0110 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0114 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
                         </svg>
                     </div>
                     
-                    <p class="font-script text-4xl text-[#D4AF37] mb-1 drop-shadow-sm">Terima Kasih</p>
-                    <h4 class="font-playfair text-[11px] tracking-[0.2em] uppercase font-bold text-white/90 mb-5 border-b border-gold/20 pb-3">Teruntuk Tamu Undangan</h4>
+                    <p class="font-script text-4xl text-gold mb-1">Terima Kasih</p>
+                    <h4 class="font-playfair text-[11px] tracking-[0.2em] uppercase font-bold text-white/90 mb-5 border-b border-gold/30 pb-3">Teruntuk Tamu Undangan</h4>
                     
                     <div class="space-y-4 text-center font-montserrat">
-                        <p class="text-[11px] leading-relaxed text-white/90 font-light">
+                        <p class="text-[11px] leading-relaxed text-white/95 font-light">
                             Rasa syukur dan kebahagiaan yang tak terhingga atas kehadiran, dukungan moril, serta doa restu dari Bapak/Ibu, Keluarga, Sahabat, dan Rekan Sejawat sekalian pada Sidang Promosi Doktor ini.
                         </p>
-                        <p class="text-[11px] leading-relaxed text-white/70 font-light">
-                            Kehadiran Bapak/Ibu sekalian menjadi penyemangat dan anugerah terbesar dalam pencapaian gelar akademik ini. Semoga Allah SWT senantiasa membalas kebaikan Bapak/Ibu dengan rahmat dan keberkahan yang berlipat ganda.
+                        <p class="text-[11px] leading-relaxed text-white/80 font-light">
+                            Kehadiran Bapak/Ibu sekalian menjadi penyemangat dan anugerah terbesar dalam pencapaian gelar akademik ini. Semoga Allah SWT senantiasi membalas kebaikan Bapak/Ibu dengan rahmat dan keberkahan yang berlipat ganda.
                         </p>
                     </div>
                     
@@ -690,38 +1252,46 @@
                         <p class="text-[8px] uppercase tracking-[0.3em] text-gold/60 mb-1.5 font-bold font-montserrat">Hormat Saya,</p>
                         <h3 class="font-playfair font-bold text-white tracking-wider leading-tight whitespace-nowrap" style="font-size: clamp(12px, 3.8vw, 15px);">Dr. Aris Ariyanto, S.E., M.M.</h3>
                     </div>
+
+                    <div class="mt-8 pt-4 border-t border-gold/20 text-center flex flex-col items-center">
+                        <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782362182/Desain_tanpa_judul_9_kcyjeu.png" alt="Developer Logo" class="w-10 opacity-70 mb-2">
+                        <a href="https://wa.me/6285173458645" target="_blank" class="text-[9px] text-white/60 hover:text-gold transition-colors font-montserrat">
+                            Ingin pesan undangan seperti ini? Hubungi kami via WhatsApp.
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
     </div>
 
+    <!-- PERSISTENT NAVIGATION MENU -->
     <div id="nav-container" class="absolute bottom-6 left-0 right-0 mx-auto w-[94%] max-w-[420px] z-[300] transition-all duration-500 ease-out transform translate-y-28 opacity-0 pointer-events-none">
         <nav class="bottom-nav">
-            <button onclick="scrollToSection('sec-opening')" class="nav-link active">
+            <button onclick="window.scrollToSection('sec-opening')" class="nav-link active">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400647/1_muadu3.png" alt="Beranda" class="nav-icon-3d">
                 <span>Beranda</span>
             </button>
-            <button onclick="scrollToSection('sec-profil')" class="nav-link">
+            <button onclick="window.scrollToSection('sec-profil')" class="nav-link">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400650/3_rau7a1.png" alt="Profil" class="nav-icon-3d">
                 <span>Profil</span>
             </button>
-            <button onclick="scrollToSection('sec-acara')" class="nav-link">
+            <button onclick="window.scrollToSection('sec-acara')" class="nav-link">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400654/4_mafutv.png" alt="Acara" class="nav-icon-3d">
                 <span>Acara</span>
             </button>
-            <button onclick="scrollToSection('sec-countdown')" class="nav-link">
+            <button onclick="window.scrollToSection('sec-countdown')" class="nav-link">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400650/5_dk8mws.png" alt="Waktu" class="nav-icon-3d">
                 <span>Waktu</span>
             </button>
-            <button onclick="scrollToSection('sec-promotor')" class="nav-link">
+            <button onclick="window.scrollToSection('sec-promotor')" class="nav-link">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400656/6_ubjbri.png" alt="Tim" class="nav-icon-3d">
                 <span>Tim</span>
             </button>
-            <button onclick="scrollToSection('sec-maps')" class="nav-link">
+            <button onclick="window.scrollToSection('sec-maps')" class="nav-link">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400646/7_d7vs5n.png" alt="Peta" class="nav-icon-3d">
                 <span>Peta</span>
             </button>
-            <button onclick="scrollToSection('sec-thanks')" class="nav-link">
+            <button onclick="window.scrollToSection('sec-thanks')" class="nav-link">
                 <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782400640/8_yfejlr.png" alt="RSVP" class="nav-icon-3d">
                 <span>RSVP</span>
             </button>
@@ -730,19 +1300,19 @@
 
     <!-- MODAL 3D DETAIL DAFTAR TAMU -->
     <div id="guest-list-modal" class="fixed inset-0 z-[500] hidden items-center justify-center px-4 bg-black/85 backdrop-blur-md transition-all duration-300">
-        <div class="glass-panel p-5 max-w-sm w-full border-gold/40 shadow-2xl bg-[#06142E]/98 flex flex-col max-h-[80vh] relative overflow-hidden">
+        <div class="glass-panel p-5 max-w-sm w-full border-gold/40 shadow-2xl bg-[#06142E]/95 flex flex-col max-h-[80vh] relative overflow-hidden">
             <div class="absolute -top-12 -left-12 w-24 h-24 bg-gold/10 rounded-full filter blur-xl"></div>
             
             <div class="flex justify-between items-center border-b border-gold/20 pb-3 mb-4 z-10">
                 <div class="flex items-center gap-2">
-                    <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782363055/Desain_tanpa_judul_10_g14gyf.png" alt="Daftar" class="w-6 h-6 object-contain filter drop-shadow-md brightness-0 invert sepia(1) saturate(5) hue-rotate(10deg)">
-                    <h3 class="font-playfair text-[#D4AF37] font-bold text-sm uppercase tracking-wider">Konfirmasi Kehadiran</h3>
+                    <img src="https://res.cloudinary.com/dfbkph06k/image/upload/v1782363055/Desain_tanpa_judul_10_g14gyf.png" alt="Daftar" class="w-6 h-6 object-contain">
+                    <h3 class="font-playfair text-gold font-bold text-sm uppercase tracking-wider">Konfirmasi Kehadiran</h3>
                 </div>
-                <button onclick="closeGuestListModal()" class="text-white/60 hover:text-white font-bold text-lg focus:outline-none transition-colors">&times;</button>
+                <button onclick="closeGuestListModal()" class="text-white/60 hover:text-gold font-bold text-lg focus:outline-none transition-colors">&times;</button>
             </div>
             
-            <div class="flex border-b border-gold/20 mb-3 text-[10px] font-bold uppercase tracking-widest z-10">
-                <button onclick="switchGuestTab('total')" id="tab-total" class="flex-1 py-2 text-center text-white border-b-2 border-white">Semua</button>
+            <div class="flex border-b border-white/10 mb-3 text-[10px] font-bold uppercase tracking-widest z-10">
+                <button onclick="switchGuestTab('total')" id="tab-total" class="flex-1 py-2 text-center text-gold border-b-2 border-gold">Semua</button>
                 <button onclick="switchGuestTab('hadir')" id="tab-hadir" class="flex-1 py-2 text-center text-white/50 border-b-2 border-transparent">Hadir</button>
                 <button onclick="switchGuestTab('ragu')" id="tab-ragu" class="flex-1 py-2 text-center text-white/50 border-b-2 border-transparent">Ragu</button>
                 <button onclick="switchGuestTab('tidak')" id="tab-tidak" class="flex-1 py-2 text-center text-white/50 border-b-2 border-transparent">Izin</button>
@@ -754,259 +1324,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    const musicBtn = document.getElementById("music-btn-container");
-    let isPlaying = false;
-    let currentGuestTab = 'total';
-
-    const getQueryParam = (param) => new URLSearchParams(window.location.search).get(param);
-
-    const guestName = getQueryParam("to");
-    if (guestName) document.getElementById("guest-name").innerText = guestName;
-
-    window.toggleMusic = function() {
-        const audio = document.getElementById("bg-music");
-        if (!audio) return;
-        if (isPlaying) { audio.pause(); musicBtn.classList.remove("playing"); } 
-        else { audio.play().catch(() => {}); musicBtn.classList.add("playing"); }
-        isPlaying = !isPlaying;
-    };
-
-    function showNavigation() {
-        const nav = document.getElementById('nav-container');
-        if (nav && nav.classList.contains('pointer-events-none')) {
-            nav.classList.remove('translate-y-28', 'opacity-0', 'pointer-events-none');
-            nav.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-        }
-    }
-
-    function hideNavigation() {
-        const nav = document.getElementById('nav-container');
-        if (nav && !nav.classList.contains('pointer-events-none')) {
-            nav.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
-            nav.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
-        }
-    }
-
-    window.bukaUndangan = function() {
-        scrollToSection('sec-profil');
-        showNavigation(); 
-        setTimeout(() => {
-            const audio = document.getElementById("bg-music");
-            if (audio && !isPlaying) {
-                audio.play().then(() => { isPlaying = true; musicBtn.classList.add("playing"); }).catch(() => {});
-            }
-        }, 50);
-    };
-
-    window.scrollToSection = (id) => {
-        const container = document.getElementById('scroll-container');
-        const el = document.getElementById(id);
-        if (container && el) {
-            container.style.scrollSnapType = 'none';
-            el.scrollIntoView({ behavior: 'smooth' });
-            setTimeout(() => { container.style.scrollSnapType = 'y mandatory'; }, 800);
-        }
-    };
-
-    window.openGuestListModal = () => {
-        const modal = document.getElementById('guest-list-modal');
-        if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); renderGuestTab(); }
-    };
-
-    window.openGuestListModalTab = (tabName) => { switchGuestTab(tabName); openGuestListModal(); };
-
-    window.closeGuestListModal = () => {
-        const modal = document.getElementById('guest-list-modal');
-        if (modal) { modal.classList.remove('flex'); modal.classList.add('hidden'); }
-    };
-
-    window.switchGuestTab = (tab) => {
-        currentGuestTab = tab;
-        ['total', 'hadir', 'ragu', 'tidak'].forEach(t => {
-            const el = document.getElementById(`tab-${t}`);
-            if (el) {
-                if (t === tab) {
-                    el.classList.add('border-b-2');
-                    if (t === 'total') el.className = "flex-1 py-2 text-center text-white border-b-2 border-white"; 
-                    else if (t === 'hadir') el.className = "flex-1 py-2 text-center text-emerald-400 border-b-2 border-emerald-500"; 
-                    else if (t === 'ragu') el.className = "flex-1 py-2 text-center text-[#D4AF37] border-b-2 border-[#D4AF37]"; 
-                    else el.className = "flex-1 py-2 text-center text-rose-400 border-b-2 border-rose-500"; 
-                } else {
-                    el.className = "flex-1 py-2 text-center text-white/50 border-b-2 border-transparent";
-                }
-            }
-        });
-        renderGuestTab();
-    };
-
-    window.renderGuestTab = () => {
-        const container = document.getElementById('guest-tab-content');
-        if (!container) return;
-
-        let filtered = [];
-        if (currentGuestTab === 'total') filtered = window.allRSVPData || [];
-        else if (currentGuestTab === 'hadir') filtered = (window.allRSVPData || []).filter(i => i.status === 'Hadir');
-        else if (currentGuestTab === 'ragu') filtered = (window.allRSVPData || []).filter(i => i.status === 'Masih Ragu');
-        else if (currentGuestTab === 'tidak') filtered = (window.allRSVPData || []).filter(i => i.status === 'Tidak Hadir' || i.status === 'Berhalangan');
-
-        if (filtered.length === 0) {
-            container.innerHTML = `<p class="text-[10px] text-center opacity-40 py-12 italic text-white">Belum ada data tamu di kategori ini.</p>`;
-            return;
-        }
-
-        container.innerHTML = filtered.map(data => {
-            let statusBadge = '';
-            if (data.status === 'Hadir') statusBadge = '<span class="text-[7px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 uppercase font-black tracking-wider">Hadir</span>';
-            else if (data.status === 'Masih Ragu') statusBadge = '<span class="text-[7px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 uppercase font-black tracking-wider">Ragu</span>';
-            else statusBadge = '<span class="text-[7px] px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20 uppercase font-black tracking-wider">Izin</span>';
-
-            return `
-                <div class="bg-white/5 border border-white/5 p-2 rounded-xl flex justify-between items-center transition-all hover:border-gold/20">
-                    <div class="flex flex-col text-left">
-                        <span class="font-bold text-[10px] text-white leading-tight">${data.name}</span>
-                        <span class="text-[8px] text-silver mt-0.5">${data.relation || 'Rekan'}</span>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">${statusBadge}</div>
-                </div>
-            `;
-        }).join('');
-    };
-
-    function startCountdown() {
-        // Berdasarkan data text "Rabu, 1 Juli 2026". Note: Bulan di JS mulai dari 0 (0 = Jan, 6 = Jul)
-        const eventDate = new Date(2026, 6, 1, 13, 0, 0).getTime();
-        
-        const updateCountdown = () => {
-            const now = new Date().getTime();
-            const diff = eventDate - now;
-            
-            const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val.toString().padStart(2, '0'); };
-            
-            if (diff > 0) {
-                safeSet("days", Math.floor(diff / (1000 * 60 * 60 * 24)));
-                safeSet("hours", Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-                safeSet("minutes", Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
-                safeSet("seconds", Math.floor((diff % (1000 * 60)) / 1000));
-            } else {
-                safeSet("days", 0); safeSet("hours", 0); safeSet("minutes", 0); safeSet("seconds", 0);
-                const titleHeader = document.querySelector("#sec-countdown h3");
-                if (titleHeader) titleHeader.innerText = "Acara Sedang Berlangsung / Selesai";
-            }
-        };
-
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    }
-
-    function init3dEffect() {
-        const container = document.getElementById('profile-container-3d');
-        const card = document.getElementById('card-3d');
-        const shine = document.getElementById('shine-3d');
-        
-        if (!container || !card) return;
-        let ticking = false;
-
-        const handleMove = (x, y, rect) => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const relativeX = (x - rect.left);
-                    const relativeY = (y - rect.top);
-                    
-                    const rotateX = -((relativeY) - (rect.height / 2)) / 8;
-                    const rotateY = ((relativeX) - (rect.width / 2)) / 8;
-                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-
-                    if (shine) {
-                        const shineX = (relativeX / rect.width) * 100;
-                        const shineY = (relativeY / rect.height) * 100;
-                        shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
-                    }
-                    ticking = false;
-                });
-                ticking = true;
-            }
-        };
-
-        container.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY, container.getBoundingClientRect()));
-        container.addEventListener('mouseleave', () => {
-            window.requestAnimationFrame(() => {
-                card.style.transform = `rotateX(5deg) rotateY(-10deg)`;
-                if (shine) shine.style.backgroundPosition = `0% 0%`;
-            });
-        });
-
-        container.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY, container.getBoundingClientRect());
-        }, { passive: true });
-
-        container.addEventListener('touchend', () => {
-            window.requestAnimationFrame(() => {
-                card.style.transform = `rotateX(5deg) rotateY(-10deg)`;
-                if (shine) shine.style.backgroundPosition = `0% 0%`;
-            });
-        });
-    }
-
-    function alertModal(msg) {
-        const div = document.createElement('div');
-        div.className = "fixed inset-0 z-[1000] flex items-center justify-center px-6 bg-black/85 backdrop-blur-md transition-all duration-300";
-        div.innerHTML = `
-            <div class="glass-panel p-6 text-center max-w-xs border-gold/40 shadow-2xl bg-[#06142E]/95 animate-fade-in-up">
-                <p class="text-[12px] mb-5 text-white leading-relaxed font-semibold text-center font-playfair">${msg}</p>
-                <button onclick="this.parentElement.parentElement.remove()" class="btn-pop shadow-md px-6 py-2.5">Tutup</button>
-            </div>
-        `;
-        document.body.appendChild(div);
-    }
-
-    function initPerformanceObserver() {
-        const sections = document.querySelectorAll('section');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const photoWrapper = document.getElementById('photo-scale-wrapper');
-        const floatingGuestBtn = document.getElementById('floating-guest-btn');
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const currentId = entry.target.id;
-                    
-                    if (currentId === 'sec-opening') hideNavigation();
-                    else showNavigation();
-
-                    if (floatingGuestBtn) {
-                        if (currentId === 'sec-thanks') {
-                            floatingGuestBtn.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
-                            floatingGuestBtn.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
-                        } else {
-                            floatingGuestBtn.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
-                            floatingGuestBtn.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
-                        }
-                    }
-
-                    if (photoWrapper) {
-                        if (currentId === 'sec-profil') photoWrapper.classList.add('animate-photo-in');
-                        else if (currentId === 'sec-opening') photoWrapper.classList.remove('animate-photo-in');
-                    }
-
-                    navLinks.forEach(btn => {
-                        btn.classList.remove('active');
-                        let matchTarget = currentId;
-                        if (currentId === 'sec-closing') matchTarget = 'sec-thanks';
-                        
-                        const onClickAttr = btn.getAttribute('onclick');
-                        if (onClickAttr && onClickAttr.includes(matchTarget)) {
-                            btn.classList.add('active');
-                        }
-                    });
-                }
-            });
-        }, { root: document.getElementById('scroll-container'), threshold: 0.35 });
-
-        sections.forEach(section => observer.observe(section));
-    }
-</script>
 
 </body>
 </html>
